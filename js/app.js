@@ -1,6 +1,66 @@
 // Budget Controller for data manupulation and data-structuring.
 var budgetController = ( function() {
 
+    // Constructor for expense-type data storage.
+    var Expense = function(id, description, value){
+        this.id = id;
+        this.description = description;
+        this.value = value;
+    }
+
+    // Constructor for income-type data storage.
+    var Income = function(id, description, value){
+        this.id = id;
+        this.description = description;
+        this.value = value;
+    }
+
+    // Data-Structure to store all expenses, incomes, and their totals.
+    var data = {
+        allItems: {
+            exp: [],
+            inc: [],
+        },
+        totals: {
+            totalIncome: 0,
+            totalExpense: 0,
+        }
+    }
+
+    // Public API's
+    return {
+
+        // API to add item in our data-structure.
+        addItem: function(type, des, val) {
+            var newItem, ID;
+
+            if(data.allItems[type].length == 0){
+                data.allItems[type].id = 0;
+            }
+            else{
+                ID = data.allItems[type][data.allItems[type].length -1].id + 1
+            }
+
+            if(type == 'inc'){
+                newItem = new Income(ID, des, val)
+            }
+            else{
+                newItem = new Expense(ID, des, val)
+            }
+
+            // Push it into our Data-Structure.
+            data.allItems[type].push(newItem);
+            // Return the newItem to be used further.
+            return newItem;
+        },
+
+        // Testing API.
+        test: function(){
+            console.log(data);
+        }
+
+    }
+
 })();
 
 
@@ -15,10 +75,10 @@ var UIController = ( function() {
         inputBtn: '.add__btn'
     }
 
-    // Public API's
+    // Public API's.
     return {
 
-        // Function to fetch and return input data from DOM in form of object. 
+        // API to fetch and return input data from DOM in form of object.
         getInput: function(){
             return {
                 type: document.querySelector(DomStrings.inputType).value,
@@ -27,7 +87,7 @@ var UIController = ( function() {
             };
         },
 
-        // Function to return centralised DomStrings.
+        // API to return centralised DomStrings.
         getDomStrings: function(){
             return {
                 DomStrings,
@@ -61,11 +121,18 @@ var controller = ( function(budgetCtrl, UICtrl) {
     // Adding expense's and incomes in the UI.
     var ctrlAddItem = function() {
 
-        //Get input from the fields.
-        console.log(UICtrl.getInput());
+        var input, newItem;
+        //Get input from the text-fields.
+        input = UICtrl.getInput();
+
+        // Adding the input in the budget-controller.
+        newItem = budgetCtrl.addItem(input.type, input.description, input.value);
+
     };
 
+    // Public API's.
     return {
+        // Execution of code starts from init(), Setting the same as public exposed API.
         init: function(){
             eventListenerSetup();
         }
