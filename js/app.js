@@ -24,8 +24,24 @@ var budgetController = ( function() {
         totals: {
             totalIncome: 0,
             totalExpense: 0,
+        },
+        budget: 0,
+        percentage: -1,
+    };
+
+    // Private API to calculate total income and expense.
+    var calculateTotal = function(type) {
+        var total = 0;
+        for(i=0; i<data.allItems[type].length; i++){
+            total += data.allItems[type][i].value;
         }
-    }
+        if(type == 'inc'){
+            data.totals.totalIncome = total;
+        }
+        else{
+            data.totals.totalExpense = total;
+        }
+    };
 
     // Public API's
     return {
@@ -54,6 +70,33 @@ var budgetController = ( function() {
             return newItem;
         },
 
+        // API to calculate the budget on present state.
+        calculateBudget:  function() {
+            // Calculate total income and expenses.
+            calculateTotal('inc');
+            calculateTotal('exp');
+
+            // Calculate final budget on present state i.e totalIncome - totalExpense.
+            data.budget = data.totals.totalIncome - data.totals.totalExpense;
+
+            // Calculate the percentage.
+            if (data.totals.totalIncome > 0){
+                data.percentage = Math.round((data.totals.totalExpense / data.totals.totalIncome)*100);
+            }
+            else{
+                data.percentage = -1;
+            }
+        },
+
+        // API to return the budget specific data back to the controller, to be used for UI.
+        getBudget: function() {
+            return {
+                budget: data.budget,
+                totalInc: data.totals.totalIncome,
+                totalExp: data.totals.totalExpense,
+                percent: data.percentage
+            }
+        },
     }
 
 })();
@@ -80,7 +123,7 @@ var UIController = ( function() {
             return {
                 type: document.querySelector(DomStrings.inputType).value,
                 description: document.querySelector(DomStrings.inputDescription).value,
-                value: document.querySelector(DomStrings.inputValue).value
+                value: parseFloat(document.querySelector(DomStrings.inputValue).value)
             };
         },
 
@@ -157,16 +200,35 @@ var controller = ( function(budgetCtrl, UICtrl) {
         //Get input from the text-fields.
         input = UICtrl.getInput();
 
-        // Adding the input in the budget-controller.
-        newItem = budgetCtrl.addItem(input.type, input.description, input.value);
+        if(input.description != '' && !isNaN(input.value) && input.value > 0)
+        {
+            // Adding the input in the budget-controller.
+            newItem = budgetCtrl.addItem(input.type, input.description, input.value);
 
-        // Adding the input from text-fields to the respective UI.
-        UICtrl.addListItem(newItem, input.type);
+            // Adding the input from text-fields to the respective UI.
+            UICtrl.addListItem(newItem, input.type);
 
-        // Clearing the inputs.
-        UICtrl.clearFields();
+            // Clearing the inputs.
+            UICtrl.clearFields();
+
+            // Calculate and update budget.
+            updateBudget();
+        }
 
     };
+
+    var updateBudget = function() {
+
+        // Calculate the budget.
+        budgetCtrl.calculateBudget();
+
+        // Return the budget.
+        var budget = budgetCtrl.getBudget();
+        console.log(budget);
+
+        // Display the budget in the UI.
+
+    }
 
     // Public API's.
     return {
