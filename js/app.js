@@ -112,7 +112,11 @@ var UIController = ( function() {
         inputValue: '.add__value',
         inputBtn: '.add__btn',
         incomeContainer: '.income__list',
-        expenseContainer: '.expenses__list'
+        expenseContainer: '.expenses__list',
+        budgetLable: '.budget__value',
+        incomeLabel: '.budget__income--value',
+        expenseLabel: '.budget__expenses--value',
+        percentageLabel: '.budget__expenses--percentage',
     }
 
     // Public API's.
@@ -160,6 +164,19 @@ var UIController = ( function() {
                 current.value = '';
             });
             fieldsArray[0].focus();
+        },
+
+        // API to display budget to the UI.
+        displayBudget: function(obj) {
+            document.querySelector(DomStrings.budgetLable).textContent = obj.budget;
+            document.querySelector(DomStrings.incomeLabel).textContent = obj.totalInc;
+            document.querySelector(DomStrings.expenseLabel).textContent = obj.totalExp;
+            if(obj.percent != -1){
+                document.querySelector(DomStrings.percentageLabel).textContent = obj.percent;
+            }
+            else{
+                document.querySelector(DomStrings.percentageLabel).textContent = '---';
+            }
         },
 
         // API to return centralised DomStrings.
@@ -224,9 +241,9 @@ var controller = ( function(budgetCtrl, UICtrl) {
 
         // Return the budget.
         var budget = budgetCtrl.getBudget();
-        console.log(budget);
 
         // Display the budget in the UI.
+        UICtrl.displayBudget(budget);
 
     }
 
@@ -234,6 +251,12 @@ var controller = ( function(budgetCtrl, UICtrl) {
     return {
         // Execution of code starts from init(), Setting the same as public exposed API.
         init: function(){
+            UICtrl.displayBudget({
+                budget: 0,
+                totalInc: 0,
+                totalExp: 0,
+                percent: 0
+            });
             eventListenerSetup();
         }
     };
