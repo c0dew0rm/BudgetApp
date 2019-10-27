@@ -84,7 +84,7 @@ var UIController = ( function() {
             };
         },
 
-        // API to add data to respective UI.
+        // API to add income/expense data to respective UI.
         addListItem: function(obj, type) {
             var html, newHtml, element;
 
@@ -106,6 +106,17 @@ var UIController = ( function() {
             // Insert html into the DOM.
             document.querySelector(element).insertAdjacentHTML('beforeend', newHtml);
 
+        },
+
+        // API to clear text-fields after the input.
+        clearFields: function(){
+            var fields,fieldsArray ;
+            fields = document.querySelectorAll(DomStrings.inputValue +', '+ DomStrings.inputDescription);
+            fieldsArray = Array.prototype.slice.call(fields);
+            fieldsArray.forEach( function(current, index, array) {
+                current.value = '';
+            });
+            fieldsArray[0].focus();
         },
 
         // API to return centralised DomStrings.
@@ -151,6 +162,9 @@ var controller = ( function(budgetCtrl, UICtrl) {
 
         // Adding the input from text-fields to the respective UI.
         UICtrl.addListItem(newItem, input.type);
+
+        // Clearing the inputs.
+        UICtrl.clearFields();
 
     };
 
